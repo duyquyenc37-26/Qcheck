@@ -624,6 +624,10 @@
         </div>
       </div>
       <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <div id="welcome-server-status" class="hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 shadow-2xs">
+          <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+          <span id="welcome-server-text">Offline Local DB</span>
+        </div>
         <button onclick="window.switchView('view-teacher-login')" class="text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2.5 sm:px-3 py-1.5 rounded-lg transition border border-indigo-200/60 flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-chalkboard-user"></i> <span class="hidden sm:inline">Cổng</span> Giáo viên
         </button>
@@ -743,6 +747,9 @@
         </button>
         <button onclick="window.showChangeServerModal()" class="px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-300 hover:border-violet-500 bg-white text-slate-700 hover:text-violet-700 font-medium transition flex items-center gap-1.5 shadow-sm" title="Đổi Server Firebase">
           <i class="fa-solid fa-server text-violet-600"></i> <span class="hidden md:inline">Đổi Server</span>
+        </button>
+        <button onclick="window.showShareStudentLinkModal()" class="px-2.5 sm:px-3 py-1.5 rounded-lg border border-emerald-300 hover:border-emerald-500 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold transition flex items-center gap-1.5 shadow-sm" title="Lấy link phòng thi gửi học sinh">
+          <i class="fa-solid fa-share-nodes text-emerald-600"></i> <span class="hidden md:inline">Gửi Link Học Sinh</span>
         </button>
         <button onclick="window.backupDatabaseJSON()" class="px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-300 hover:border-indigo-500 bg-white text-slate-700 hover:text-indigo-700 font-medium transition flex items-center gap-1.5 shadow-sm" title="Sao lưu Database">
           <i class="fa-solid fa-download text-indigo-600"></i> <span class="hidden sm:inline">Backup</span>
@@ -1445,6 +1452,10 @@
       </div>
 
       <div class="flex items-center gap-2 shrink-0">
+        <div id="student-dash-server-badge" class="hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="student-dash-server-text">Server: Online</span>
+        </div>
         <button onclick="window.logoutStudent()" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 font-semibold text-xs border border-rose-200 transition flex items-center gap-1">
           <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden xs:inline">Rời Lớp</span>
         </button>
@@ -2690,19 +2701,56 @@ def parse_docx_math_text_py(raw_text):
         const badge = document.getElementById('system-connection-badge');
         const badgeText = document.getElementById('system-connection-text');
         const teacherBadge = document.getElementById('teacher-header-db-status');
+        const welcomeBadge = document.getElementById('welcome-server-status');
+        const studentDashBadge = document.getElementById('student-dash-server-badge');
+
+        const label = text || (isConnected ? 'Firebase Cloud Realtime' : 'Local Storage Active');
 
         if (badge && badgeText) {
           if (isConnected) {
             badge.className = 'hidden xs:flex px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200 items-center gap-1.5 shadow-sm cursor-pointer hover:shadow-md hover:bg-emerald-200/70 transition';
-            badgeText.innerText = text || 'Firebase Realtime';
+            badgeText.innerText = label;
           } else {
             badge.className = 'hidden xs:flex px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 items-center gap-1.5 shadow-sm cursor-pointer hover:shadow-md hover:bg-slate-200/70 transition';
-            badgeText.innerText = text || 'Local Storage DB';
+            badgeText.innerText = label;
           }
         }
         if (teacherBadge) {
-          teacherBadge.innerText = text || (isConnected ? 'Firebase Cloud Realtime' : 'Local Storage Active');
+          teacherBadge.innerText = label;
           teacherBadge.className = isConnected ? 'text-indigo-600 font-semibold cursor-pointer hover:underline' : 'text-emerald-600 font-medium cursor-pointer hover:underline';
+        }
+        if (welcomeBadge) {
+          if (isConnected) {
+            welcomeBadge.className = 'hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs';
+            welcomeBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span id="welcome-server-text">${label}</span>`;
+          } else {
+            welcomeBadge.className = 'hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 shadow-2xs';
+            welcomeBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> <span id="welcome-server-text">Offline Local DB</span>`;
+          }
+        }
+        if (studentDashBadge) {
+          if (isConnected) {
+            studentDashBadge.className = 'hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-2xs';
+            studentDashBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span id="student-dash-server-text">${label}</span>`;
+          } else {
+            studentDashBadge.className = 'hidden xs:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 shadow-2xs';
+            studentDashBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> <span id="student-dash-server-text">Offline Local DB</span>`;
+          }
+        }
+      }
+
+      refreshAllViews() {
+        if (typeof window.refreshTeacherDashboard === 'function') {
+          window.refreshTeacherDashboard();
+        }
+        if (typeof window.populateClassSelects === 'function') {
+          window.populateClassSelects();
+        }
+        if (typeof window.initStudentLoginView === 'function') {
+          window.initStudentLoginView();
+        }
+        if (typeof window.refreshStudentDashboard === 'function') {
+          window.refreshStudentDashboard();
         }
       }
 
@@ -2719,7 +2767,63 @@ def parse_docx_math_text_py(raw_text):
       }
 
       async initFirebaseIfConfigured() {
-        const configStr = localStorage.getItem(FIREBASE_CONFIG_KEY);
+        let configStr = localStorage.getItem(FIREBASE_CONFIG_KEY);
+
+        // 1. Check if server configuration or direct exam/class is in URL
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const hashVal = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+          const hashParams = new URLSearchParams(hashVal);
+          const urlConfigRaw = urlParams.get('server') || urlParams.get('fb') || urlParams.get('cfg') ||
+                               hashParams.get('server') || hashParams.get('fb') || hashParams.get('cfg');
+
+          if (urlConfigRaw) {
+            let decoded = urlConfigRaw.trim();
+            if (!decoded.startsWith('{')) {
+              try {
+                decoded = decodeURIComponent(escape(atob(decoded)));
+              } catch (_) {
+                try { decoded = atob(decoded); } catch (_) {}
+              }
+            }
+            const parsedFromUrl = window.parseFirebaseConfig(decoded);
+            if (parsedFromUrl && !this.isDummyConfig(parsedFromUrl)) {
+              configStr = JSON.stringify(parsedFromUrl, null, 2);
+              localStorage.setItem(FIREBASE_CONFIG_KEY, configStr);
+              // Also sync with backend server
+              fetch('/api/server-config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ config: parsedFromUrl })
+              }).catch(() => {});
+            }
+          }
+
+          // Direct exam & class linking from URL
+          const directExam = urlParams.get('exam') || hashParams.get('exam');
+          const directClass = urlParams.get('class') || hashParams.get('class');
+          if (directExam) window._directExamId = directExam;
+          if (directClass) window._directClassId = directClass;
+        } catch (urlErr) {
+          console.warn('Notice reading URL server params:', urlErr);
+        }
+
+        // 2. If no server config found in localStorage, query backend server /api/server-config
+        if (!configStr) {
+          try {
+            const resp = await fetch('/api/server-config');
+            if (resp.ok) {
+              const resData = await resp.json();
+              if (resData && resData.success && resData.config && !this.isDummyConfig(resData.config)) {
+                configStr = JSON.stringify(resData.config, null, 2);
+                localStorage.setItem(FIREBASE_CONFIG_KEY, configStr);
+              }
+            }
+          } catch (apiErr) {
+            console.warn('Notice fetching /api/server-config:', apiErr);
+          }
+        }
+
         if (!configStr) {
           this.updateConnectionUI(false, 'Local Storage DB');
           return;
@@ -2767,15 +2871,13 @@ def parse_docx_math_text_py(raw_text):
               const docRef = this.firestore.collection('mathexam_app').doc('main_db');
               const snap = await Promise.race([
                 docRef.get(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase timeout')), 3500))
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase timeout')), 4000))
               ]);
               if (snap && snap.exists && snap.data() && snap.data().payload) {
                 const remote = JSON.parse(snap.data().payload);
                 this.db = remote;
                 localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(this.db));
-                if (typeof window.refreshTeacherDashboard === 'function') {
-                  window.refreshTeacherDashboard();
-                }
+                this.refreshAllViews();
               } else {
                 await this.syncToFirebase();
               }
@@ -2818,6 +2920,11 @@ def parse_docx_math_text_py(raw_text):
         if (!configObj || this.isDummyConfig(configObj)) {
           localStorage.removeItem(FIREBASE_CONFIG_KEY);
           this.updateConnectionUI(false, 'Local Storage DB');
+          fetch('/api/server-config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ config: null })
+          }).catch(() => {});
           return { success: true, mode: 'local' };
         }
 
@@ -2868,9 +2975,7 @@ def parse_docx_math_text_py(raw_text):
               this.db = remote;
               localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(this.db));
               remoteLoaded = true;
-              if (typeof window.refreshTeacherDashboard === 'function') {
-                window.refreshTeacherDashboard();
-              }
+              this.refreshAllViews();
             } else {
               try {
                 await Promise.race([
@@ -2914,6 +3019,14 @@ def parse_docx_math_text_py(raw_text):
           localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(configObj, null, 2));
           this.updateConnectionUI(true, `Firebase: ${configObj.projectId}`);
           this.listenFirebaseUpdates();
+          this.refreshAllViews();
+
+          // Sync with backend API so all students automatically connect
+          fetch('/api/server-config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ config: configObj })
+          }).catch(e => console.warn('Sync /api/server-config:', e));
 
           return { success: true, mode: 'firebase', projectId: configObj.projectId, remoteLoaded };
         } catch (err) {
@@ -2959,11 +3072,19 @@ def parse_docx_math_text_py(raw_text):
               try {
                 const remote = JSON.parse(doc.data().payload);
                 if (JSON.stringify(remote) !== JSON.stringify(this.db)) {
+                  // Merge submissions so concurrent student submissions are preserved
+                  if (Array.isArray(remote.submissions) && Array.isArray(this.db.submissions)) {
+                    const knownIds = new Set(remote.submissions.map(s => s.id));
+                    this.db.submissions.forEach(localSub => {
+                      if (!knownIds.has(localSub.id)) {
+                        remote.submissions.unshift(localSub);
+                        knownIds.add(localSub.id);
+                      }
+                    });
+                  }
                   this.db = remote;
                   localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(this.db));
-                  if (typeof window.refreshTeacherDashboard === 'function') {
-                    window.refreshTeacherDashboard();
-                  }
+                  this.refreshAllViews();
                 }
               } catch (e) {
                 console.warn('Error parsing remote update:', e.message || e);
@@ -3854,6 +3975,9 @@ def parse_docx_math_text_py(raw_text):
             <td class="py-3 px-4 text-center">${lockStatus}</td>
             <td class="py-3 px-4 text-center font-bold text-slate-700">${subCount} bài</td>
             <td class="py-3 px-4 text-right space-x-1">
+              <button onclick="window.showShareStudentLinkModal('${exam.id}')" class="p-1.5 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition" title="Lấy link đề thi này gửi học sinh (Tự động kết nối Server)">
+                <i class="fa-solid fa-share-nodes"></i>
+              </button>
               <button onclick="window.toggleExamLock('${exam.id}')" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition" title="Khóa / Mở đề">
                 <i class="fa-solid ${exam.isLocked ? 'fa-lock-open text-emerald-600' : 'fa-lock text-rose-600'}"></i>
               </button>
@@ -3879,6 +4003,151 @@ def parse_docx_math_text_py(raw_text):
           </tr>
         `;
       }).join('');
+    };
+
+    // Generate Student Share URL with embedded Server Config
+    window.generateStudentShareUrl = (examId, classId) => {
+      const origin = window.location.origin;
+      const path = window.location.pathname;
+      const currentConfigStr = localStorage.getItem(FIREBASE_CONFIG_KEY);
+      let cfgObj = null;
+      if (currentConfigStr) {
+        try { cfgObj = JSON.parse(currentConfigStr); } catch (_) {}
+      }
+
+      const params = new URLSearchParams();
+      if (examId) params.set('exam', examId);
+      if (classId) params.set('class', classId);
+
+      if (cfgObj && !window.dbManager.isDummyConfig(cfgObj)) {
+        try {
+          const compact = {
+            apiKey: cfgObj.apiKey,
+            projectId: cfgObj.projectId,
+            appId: cfgObj.appId,
+            authDomain: cfgObj.authDomain,
+            storageBucket: cfgObj.storageBucket,
+            messagingSenderId: cfgObj.messagingSenderId
+          };
+          const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compact))));
+          params.set('server', b64);
+        } catch (_) {}
+      }
+
+      const query = params.toString();
+      return `${origin}${path}${query ? '?' + query : ''}`;
+    };
+
+    window.copyStudentExamLink = (examId) => {
+      window.showShareStudentLinkModal(examId);
+    };
+
+    window.showShareStudentLinkModal = (targetExamId) => {
+      const db = window.dbManager.db;
+      const currentConfigStr = localStorage.getItem(FIREBASE_CONFIG_KEY);
+      let parsedCurrent = null;
+      if (currentConfigStr) {
+        try { parsedCurrent = JSON.parse(currentConfigStr); } catch (_) {}
+      }
+      const isConnected = !!(window.dbManager && window.dbManager.firestore && parsedCurrent && !window.dbManager.isDummyConfig(parsedCurrent));
+
+      const generalUrl = window.generateStudentShareUrl();
+      let examUrl = '';
+      let targetExamTitle = '';
+      if (targetExamId && db.exams[targetExamId]) {
+        targetExamTitle = db.exams[targetExamId].title;
+        examUrl = window.generateStudentShareUrl(targetExamId);
+      }
+
+      const serverNoticeHtml = isConnected
+        ? `<div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center gap-2">
+             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+             <div>
+               <b>Server đang hoạt động:</b> <code class="font-mono font-bold bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-950">${parsedCurrent.projectId}</code>
+               <p class="text-[11px] text-emerald-700 mt-0.5">Link đã tự động nhúng cấu hình Server. Học sinh mở link sẽ vào đúng phòng thi và đề thi trực tuyến.</p>
+             </div>
+           </div>`
+        : `<div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2">
+             <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
+             <div>
+               <b>Chế độ hiện tại: Offline LocalStorage</b>
+               <p class="text-[11px] text-amber-800 mt-0.5">Để học sinh trên thiết bị khác vào được bài thi của bạn, hãy nhấn <b>"Đổi Server"</b> và liên kết Firebase Firestore!</p>
+             </div>
+           </div>`;
+
+      const examSpecificHtml = targetExamId
+        ? `
+          <div class="space-y-1.5 pt-2 border-t border-slate-200">
+            <label class="block font-bold text-slate-800 text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-file-circle-check text-indigo-600"></i> Link Vào Thẳng Đề Thi: <span class="text-indigo-700 truncate font-semibold">${targetExamTitle}</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <input id="share-exam-url-input" type="text" readonly value="${examUrl}" class="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-300 rounded-lg text-slate-800 select-all" />
+              <button type="button" id="btn-copy-exam-url" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-xs shrink-0 flex items-center gap-1.5 shadow-sm transition active:scale-95">
+                <i class="fa-solid fa-copy"></i> Sao chép
+              </button>
+            </div>
+          </div>
+        `
+        : '';
+
+      Swal.fire({
+        title: 'Chia Sẻ Link Cho Học Sinh Thi',
+        width: '640px',
+        html: `
+          <div class="text-left text-xs space-y-4 pt-1">
+            ${serverNoticeHtml}
+
+            <div class="space-y-1.5">
+              <label class="block font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-door-open text-violet-600"></i> Link Phòng Thi Chung (Học sinh tự chọn lớp / đăng ký ngoài lớp):
+              </label>
+              <div class="flex items-center gap-2">
+                <input id="share-general-url-input" type="text" readonly value="${generalUrl}" class="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-300 rounded-lg text-slate-800 select-all" />
+                <button type="button" id="btn-copy-general-url" class="px-3.5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-semibold text-xs shrink-0 flex items-center gap-1.5 shadow-sm transition active:scale-95">
+                  <i class="fa-solid fa-copy"></i> Sao chép
+                </button>
+              </div>
+            </div>
+
+            ${examSpecificHtml}
+
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
+              <p class="font-semibold text-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-question text-indigo-500"></i> Hướng dẫn giáo viên:
+              </p>
+              <p>• <b>Gửi qua Zalo/Facebook/Classroom:</b> Học sinh chỉ cần nhấp vào link, trang web sẽ tự động kết nối vào Server của bạn và tải toàn bộ đề thi mà bạn đã tạo.</p>
+              <p>• <b>Đồng bộ hai chiều:</b> Khi học sinh nộp bài, kết quả và bài thi sẽ tự động truyền về mục <i>"Bảng Điểm & Kết Quả"</i> trên màn hình của bạn theo thời gian thực.</p>
+            </div>
+          </div>
+        `,
+        didOpen: () => {
+          const wireCopy = (btnId, inputId) => {
+            const btn = document.getElementById(btnId);
+            const inp = document.getElementById(inputId);
+            if (btn && inp) {
+              btn.onclick = () => {
+                inp.select();
+                navigator.clipboard.writeText(inp.value);
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Đã chép!';
+                btn.classList.add('bg-emerald-600');
+                btn.classList.remove('bg-violet-600', 'bg-indigo-600');
+                setTimeout(() => {
+                  btn.innerHTML = originalHtml;
+                  btn.classList.remove('bg-emerald-600');
+                  if (btnId === 'btn-copy-general-url') btn.classList.add('bg-violet-600');
+                  if (btnId === 'btn-copy-exam-url') btn.classList.add('bg-indigo-600');
+                }, 2000);
+              };
+            }
+          };
+          wireCopy('btn-copy-general-url', 'share-general-url-input');
+          wireCopy('btn-copy-exam-url', 'share-exam-url-input');
+        },
+        confirmButtonText: 'Đóng',
+        confirmButtonColor: '#7c3aed'
+      });
     };
 
     window.toggleExamLock = (examId) => {
@@ -4114,20 +4383,59 @@ const firebaseConfig = {
           const res = await window.dbManager.switchFirebaseConfig(parsedConfig);
 
           if (res && res.success) {
+            const studentUrl = window.generateStudentShareUrl();
             Swal.fire({
               icon: 'success',
-              title: 'Kết Nối Thành Công!',
+              title: 'Kết Nối Server Thành Công!',
+              width: '640px',
               html: `
-                <div class="text-xs text-slate-600 space-y-2 text-center py-1">
-                  <p>Đã đồng bộ thành công với Server Firebase: <b class="text-violet-700 font-mono text-sm">${res.projectId}</b></p>
-                  <div class="p-2.5 rounded-lg bg-emerald-50 text-emerald-800 text-[11px]">
-                    ${res.remoteLoaded 
-                      ? '<i class="fa-solid fa-check mr-1"></i> Đã tải dữ liệu đề thi & học sinh có sẵn từ Server về máy.' 
-                      : '<i class="fa-solid fa-cloud-arrow-up mr-1"></i> Cơ sở dữ liệu mới đã được khởi tạo và tải lên Server.'}
+                <div class="text-xs text-slate-600 space-y-3 text-left py-1">
+                  <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+                    <p class="font-bold flex items-center gap-1.5 text-sm text-emerald-800 mb-1">
+                      <i class="fa-solid fa-circle-check text-emerald-600"></i> Đã kết nối Server: <span class="font-mono">${res.projectId}</span>
+                    </p>
+                    <p class="text-[11px] text-emerald-700">
+                      ${res.remoteLoaded 
+                        ? 'Đã tải toàn bộ đề thi, danh sách lớp & học sinh có sẵn từ Server về máy.' 
+                        : 'Cơ sở dữ liệu của bạn đã được tải lên Server và sẵn sàng cho học sinh vào thi.'}
+                    </p>
                   </div>
-                  <p class="text-[11px] text-slate-400">Tất cả các máy kết nối cùng Server Firebase này sẽ tự động cập nhật Realtime!</p>
+
+                  <div class="p-3.5 rounded-xl bg-violet-50 border border-violet-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-violet-900 text-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-share-nodes text-violet-600"></i> Link Gửi Học Sinh (Tự Động Kết Nối Server Này):
+                      </span>
+                      <span class="text-[10px] text-violet-700 bg-violet-200/60 px-2 py-0.5 rounded-full font-semibold">Tự động đồng bộ</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <input id="modal-success-student-url" type="text" readonly value="${studentUrl}" class="flex-1 px-3 py-2 text-xs font-mono bg-white border border-violet-300 rounded-lg text-slate-800 select-all" />
+                      <button type="button" id="btn-copy-modal-student-url" class="px-3.5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-semibold text-xs shrink-0 flex items-center gap-1.5 shadow-sm transition active:scale-95">
+                        <i class="fa-solid fa-copy"></i> Sao chép
+                      </button>
+                    </div>
+                    <p class="text-[11px] text-slate-500">
+                      👉 <b>Giáo viên gửi link này cho học sinh:</b> Học sinh mở link trên điện thoại hoặc máy tính sẽ tự động vào thẳng Server này, thấy ngay danh sách lớp và đề thi của bạn!
+                    </p>
+                  </div>
                 </div>
               `,
+              didOpen: () => {
+                const btnCopy = document.getElementById('btn-copy-modal-student-url');
+                const inp = document.getElementById('modal-success-student-url');
+                if (btnCopy && inp) {
+                  btnCopy.onclick = () => {
+                    inp.select();
+                    navigator.clipboard.writeText(inp.value);
+                    btnCopy.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Đã chép!';
+                    btnCopy.className = 'px-3.5 py-2 bg-emerald-600 text-white rounded-lg font-semibold text-xs shrink-0 flex items-center gap-1.5 shadow-sm transition';
+                    setTimeout(() => {
+                      btnCopy.innerHTML = '<i class="fa-solid fa-copy mr-1"></i> Sao chép';
+                      btnCopy.className = 'px-3.5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-semibold text-xs shrink-0 flex items-center gap-1.5 shadow-sm transition active:scale-95';
+                    }, 2500);
+                  };
+                }
+              },
               confirmButtonColor: '#7c3aed',
               confirmButtonText: 'Bắt đầu sử dụng'
             });
@@ -7886,6 +8194,9 @@ Hãy đọc nội dung sau và bóc tách thành một danh sách JSON thuần (
         optionsHtml += `<option value="TD_NGOAILOP">${db.classes['TD_NGOAILOP'].name}</option>`;
         optionsHtml += `</optgroup>`;
         select.innerHTML = optionsHtml;
+        if (window._directClassId && db.classes[window._directClassId]) {
+          select.value = window._directClassId;
+        }
       }
 
       window.setStudentAuthMode(window.currentStudentAuthMode || 'login');
@@ -8177,7 +8488,7 @@ Hãy đọc nội dung sau và bóc tách thành một danh sách JSON thuần (
         examContainer.innerHTML = exams.map(ex => {
           const isDone = db.submissions.some(s => s.examId === ex.id && s.studentId === stu.id);
           return `
-            <div class="glass-card p-5 rounded-2xl border border-white/80 shadow-sm flex flex-col justify-between space-y-4">
+            <div id="student-exam-card-${ex.id}" class="glass-card p-5 rounded-2xl border border-white/80 shadow-sm flex flex-col justify-between space-y-4 transition duration-300">
               <div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="px-2 py-0.5 rounded text-[10px] font-bold ${ex.isLocked ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">
@@ -8202,6 +8513,19 @@ Hãy đọc nội dung sau và bóc tách thành một danh sách JSON thuần (
             </div>
           `;
         }).join('');
+
+        if (window._directExamId) {
+          const targetId = window._directExamId;
+          window._directExamId = null;
+          setTimeout(() => {
+            const card = document.getElementById(`student-exam-card-${targetId}`);
+            if (card) {
+              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              card.classList.add('ring-4', 'ring-indigo-500/70');
+              setTimeout(() => card.classList.remove('ring-4', 'ring-indigo-500/70'), 3500);
+            }
+          }, 250);
+        }
       }
 
       // 2. Practice exams list
